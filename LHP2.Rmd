@@ -1,0 +1,274 @@
+---
+title: "London Housing Price Over the Years 2009-2019"
+author: "A.Mayuri(2348133)"
+date: "2024-02-15"
+output: word_document
+---
+## Question:
+
+Choose a non seasonal time series data,
+1)illustrate the method of differencing.
+2)ordinary least squares 
+3)moving average smoothing to extract the stationary version.
+
+
+## Objective:
+To Extract Stationary component(Part) from Non-Stationary Data
+
+1)Perform Basic operations to understand the dataset
+2)Differencing Method
+3)Ordinary Least Square Method
+4)Moving Average Smoothing Method.
+
+
+## Dataset:
+The dataset has been sourced from https://www.kaggle.com/datasets/justinas/housing-in-london
+where the price of houses has been recorded monthly over the 11 years period. from 2009-2019.
+
+## Data Description:
+
+1)location(london): this is uniform throught out the dataset which confirms that this is a time series data-set and not a panel/cross-sectional data.
+
+2) Date: The dataset is monthly data thus the monthly dates are recorded. with corresponding monthly price averages.
+
+3) Price average: Price average is computed by summing over all the prices by the number of houses sold in that particular minth
+
+##Exploratory Data Analyses: 
+Since the 
+1)dataset taken has the same observation ie (Place-london),code(city=E92000001) 
+2)the date being a non disruptive/ no gaps and hence continuous in nature.
+3) Average price of the houses (Variable of interest)
+Performing a complete time series analyses is the best way to understand the data (EDA).
+
+### Import Dataset
+
+```{r }
+library(readr)
+LHPC <- read_csv("C:/Users/mayur/Desktop/Mstat/Semesters/Tri-sem3/Time series/Dataset/LHPC.csv")
+View(LHPC)
+attach(LHPC)
+```
+
+### Import data set -(Time series - only price component)
+```{r }
+library(readr)
+LHP1 <- read_csv("C:/Users/mayur/Desktop/Mstat/Semesters/Tri-sem3/Time series/Dataset/LHP1.csv")
+View(LHP1)
+attach(LHP1)
+```
+
+### Convert data into Time-Series And Plot
+```{r }
+data2=ts(LHP1,start=2009,frequency=12) # converting it into a time series data
+data2
+LHP1
+length(LHP1)
+ts.plot(data2)
+```
+
+Interpretation: Here we observe that the dataset only has a trend (upward) and irregularity component. we cannot use a multiplicative model due to the absence of seasonality component.
+
+Thus, the model is of additive form with trend and irregularity component. 
+
+Note: The data has no seasonality component involved.
+
+#### MATHEMATICAL MODEL:
+                        z(t)=m(t)+e(t)
+                        where, z(t)-time series variable dependent on time,
+                        m(t)-trend component
+                        e(t)-irregularity component.
+                        
+### Auto-Correlation Function Plot:
+
+```{r }
+acf(data2)
+
+```
+
+Here the model has not achieved stationarity because the the acf lines are well above the band line. The conversion into stationary process is demonstrated using differencing method below.
+
+## Method Of Differencing. 
+
+#### Concept: we need to transform the data to stationary form. a polynomial degree say p form model will give a stationary model post differencing p times.
+
+### differencing method and Plotting (Demonstration)
+```{r }
+
+diffdata=diff(data2)
+diffdata
+ts.plot(diffdata)
+library(tseries)
+
+```
+which is a stationary process, 
+since it has a 
+1)constant variance 
+2)Constant mean.
+
+
+## Confirm the stationarity (Augmented Dicky -Fuller Test)
+h0: the data trend is not stationary
+h1: the data trend is stationary
+
+```{r }
+adf.test(diffdata)
+
+
+
+
+```
+since p value is less than the significance value alpha(0.05). Thus we reject null hypothesis and conclude that the data is stationary in nature.
+
+## Moving Average Smoothing:
+
+#### Concept: 
+
+Moving averages are a series of averages calculated using sequential segments of data points over a series of values. They have a length, which defines the number of data points to include in each average
+
+Types
+
+Centered Moving Averages: It include both previous and future observations to calculate the average at a given point in time.
+
+One Sided Moving Average: 
+One-sided moving averages include the current and previous observations for each average. For example, the formula for a moving average (MA) of X at time t with a length of 5 is the following:
+
+MA(5)=X(t-4)+X(t-3)+X(t-2)+X(t-1)+X(t)/5
+
+```{r }
+library(forecast)
+ma1=ma(data2, order=3)
+ma2=ma(data2,order=5)
+ma3=ma(data2,order=7)
+ma3=ma(data2,order=9)
+par(mfrow=c(2,2))# combine multiple plots in one
+ts.plot(ma1,main="3 plot Moving average")
+ts.plot(ma2,main="5 plot Moving average")
+ts.plot(ma3,main="7 plot Moving average")
+ts.plot(ma3,main="9 plot Moving average")
+```
+
+We observe that as the order MA increases,the smoothing increases . However to extract the stationarity we need to use the least order MA to reduce the loss of information.
+
+```{r }
+error=data2-ma1 #
+ts.plot(error)
+```
+
+
+Interpretation: stationarity is achieved in 3 pt moving average (MA). 
+since it has a 
+1)constant variance 
+2)Constant mean.
+
+
+Note: we need not do it for higher order to avoid loss of information. since higher order MA (lesser observation.) we tend to lose quality Information.
+
+## Ordinary Least Square Method:
+
+#### Concept: 
+
+
+```{r }
+library(readr)
+LHP3 <- read_csv("C:/Users/mayur/Desktop/Mstat/Semesters/Tri-sem3/Time series/Dataset/LHP3.csv")
+View(LHP3)
+attach(LHP3)
+```
+
+
+#### Regression Model
+```{r }
+model=lm(LHP3$price~LHP3$month)
+summary(model)
+```
+We observe that all the variables are statistically significant and the adjusted r^2 =0.956 shows that the model is a good fit.
+
+
+```{r }
+residual=resid(model)
+plot(residual)
+```
+###Residual Analysis:
+
+#### Normality Test
+
+Ho: The residual follows normal distribution
+H1: The residual does not follow normal distribution
+```{r }
+shapiro.test(residual)
+```
+The model does not follow normal distribution since the pvalue is less than significant alpha
+
+## Constant Variannce
+
+From the plot residual plot we observe that the residual in the model defies the assumption of constant variance.
+This can be verified using BP test
+
+Hypothesis:
+Ho: The residual has a constant Variance
+H1: The residual does not have a constantt Variance.
+
+
+```{r }
+
+library(lmtest)
+bptest(model)
+```
+The value is less than alpha level(0.05) significance, Thus we reject null hypothesis and conclude that the residual does not follow constant variance.
+
+
+### Inference: 
+Since the model defies the residual analysis thus the assumptions of the error terms.
+we will not get the stationary plot (stationary) to be achieved.
+
+```{r }
+ts.plot(residual)
+```
+The same can be verified using adf test since the data only includes trend components.
+
+#### ADF Test
+
+Ho: The residual is not stationary
+H1: The residual is stationary
+
+```{r }
+adf.test(residual)
+```
+Since the P-value > o.o5 (alpha) level of significance we will fail to reject null hypothesis and conclude that the residual is not stationary.
+
+Also, higher order of polynomial fitting is not suitable since it was observed that polynomial fitting did not significantly impact in the betterment of residual analysis.
+Thus we conclude stating that Ordinary differencing method, Moving Average method were viable for the dataset to extract stationarity. However, OLS method is not suitable.
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+```{r }
+
+```

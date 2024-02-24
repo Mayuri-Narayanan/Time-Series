@@ -1,0 +1,229 @@
+---
+title: "London Housing Price Over the Years 2009-2019"
+author: "A.Mayuri(2348133)"
+date: "2024-02-15"
+output: word_document
+---
+## Question:
+
+Choose a real time series data and illustrate the following questions.
+1. Perform the various steps to understand about the components of the data and comment on
+it.
+2. Discuss the mathematical model for the given data.
+3. Comment about the behavior of Autocorrelation function plot.
+4. Does the logarithmic transformation helps in achieving stationarity of the data set? Justify
+your answer.
+Briefly prepare a report based on the above questions.
+
+## Objective:
+
+
+1) To Understand the components of the data
+2)Develop a time series model 
+3)comment on the ACF plot
+4)Lograthimic transformation needed to achieve stationarity?
+
+
+## Dataset:
+The dataset has been sourced from https://www.kaggle.com/datasets/justinas/housing-in-london
+where the price of houses has been recorded monthly over the 11 years period. from 2009-2019.
+
+## Data Description:
+
+1)location(london): this is uniform throught out the dataset which confirms that this is a time series data-set and not a panel/cross-sectional data.
+
+2) Date: The dataset is monthly data thus the monthly dates are recorded. with corresponding monthly price averages.
+
+3) Price average: Price average is computed by summing over all the prices by the number of houses sold in that particular minth
+
+##Exploratory Data Analyses: 
+Since the 
+1)dataset taken has the same observation ie (Place-london),code(city=E92000001) 
+2)the date being a non disruptive/ no gaps and hence continuous in nature.
+3) Average price of the houses (Variable of interest)
+Performing a complete time series analyses is the best way to understand the data (EDA).
+
+### Import Dataset
+
+```{r }
+library(readr)
+LHPC <- read_csv("C:/Users/mayur/Desktop/Mstat/Semesters/Tri-sem3/Time series/Dataset/LHPC.csv")
+View(LHPC)
+attach(LHPC)
+```
+
+### Import data set -(Time series - only price component)
+```{r }
+library(readr)
+LHP1 <- read_csv("C:/Users/mayur/Desktop/Mstat/Semesters/Tri-sem3/Time series/Dataset/LHP1.csv")
+View(LHP1)
+attach(LHP1)
+```
+
+### Convert data into Time-Series And Plot
+```{r }
+data2=ts(LHP1,start=2009,frequency=12) # converting it into a time series data
+data2
+LHP1
+length(LHP1)
+ts.plot(data2)
+```
+
+Interpretation: Here we observe that the dataset only has a trend (upward) and irregularity component. we cannot use a multiplicative model due to the absence of seasonality component.
+
+Thus, the model is of additive form with trend and irregularity component.
+
+#### MATHEMATICAL MODEL:
+                        z(t)=m(t)+e(t)
+                        where, z(t)-time series variable dependent on time,
+                        m(t)-trend component
+                        e(t)-irregularity component.
+                        
+### Auto-Correlation Function Plot:
+
+```{r }
+acf(data2)
+```
+
+Here the model has not achieved stationarity because the the acf lines are well above the band line. The conversion into stationary process is demonstrated using differencing method below.
+
+
+## Lograthimic Transformation And Stationarity
+
+1) We cannot use lograthimic transformation since it helps us to convert a multiplicative model into an additive model.
+
+2) Since our model is additive we need not use lograthimic transformation.
+
+3) To achiev estationarity we need to use differencing metod as demonstrated below.
+
+
+## stationary classes of time series model. (Justification)
+
+we need to transform the data to stationary form. a polynomial degree say p form model will give a stationary model post differencing p times.
+
+### differencing method and Plotting (Demonstration)
+```{r }
+
+diffdata=diff(data2)
+diffdata
+ts.plot(diffdata)
+library(tseries)
+
+```
+which is a stationary process, 
+since it has a 
+1)constant variance 
+2)Constant mean.
+
+
+## Confirm the stationarity (Augmented Dicky -Fuller Test)
+h0: the data trend is not stationary
+h1: the data trend is stationary
+
+```{r }
+adf.test(diffdata)
+
+
+
+
+```
+since p value is less than the significance value alpha(0.05). Thus we reject null hypothesis and conclude that the data is stationary in nature.
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+```{r }
+
+```
+
+
+```{r }
+
+```
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+```{r }
+
+```
